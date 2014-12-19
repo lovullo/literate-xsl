@@ -40,7 +40,8 @@
 -->
 <template match="xsl:stylesheet|xsl:transform">
   <apply-templates mode="xt:doc-gen"
-                   select="preceding-sibling::comment()|*" />
+                   select="preceding-sibling::comment()
+                           |node()" />
 </template>
 
 
@@ -106,6 +107,22 @@
 
 
 <!--
+  Determine whether the given comment node is a docblock
+-->
+<function name="xt:is-docblock" as="xs:boolean">
+  <param name="node" as="comment()" />
+
+  <variable name="next" as="node()?"
+            select="($node/following-sibling::*
+                    |$node/following-sibling::comment())[ 1 ]" />
+
+  <!-- FIXME: this will be a maintenance burden -->
+  <sequence select="$next instance of element( xsl:template )
+                    or $next instance of element( xsl:function )" />
+</function>
+
+
+<!--
   Echo comment blocks
 
   This allows including arbitrary output, enabling the writing of
@@ -122,6 +139,13 @@
           match="comment()[ not( starts-with( ., '@comment' ) ) ]">
   <value-of select="concat( ., $xt:nl )" />
 </template>
+
+
+<!--
+  Ignore docblock comments (handled in respective templates)
+-->
+<template mode="xt:doc-gen" priority="7"
+          match="comment()[ xt:is-docblock( . ) ]" />
 
 
 <!--
