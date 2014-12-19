@@ -163,7 +163,7 @@
                         @name, ' as ',
                         '{',
                         if ( @as ) then @as else 'xs:sequence*',
-                        '} ' )" />
+                        '}' )" />
   </for-each>
 </function>
 
