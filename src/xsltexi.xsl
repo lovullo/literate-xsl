@@ -70,10 +70,15 @@
                       $xt:nl,
                       $doc,
                       $xt:nl,
+                      '@verbatim',
+                      $xt:nl,
+                      xt:serialize( . ),
+                      $xt:nl,
+                      '@end verbatim',
+                      $xt:nl,
                       '@end deffn',
                       $xt:nl)" />
 </template>
-
 
 
 <!--
@@ -125,6 +130,12 @@
                         @name, ' (', $param-str, ')',
                       $xt:nl,
                       $doc,
+                      $xt:nl,
+                      '@verbatim',
+                      $xt:nl,
+                      xt:serialize( . ),
+                      $xt:nl,
+                      '@end verbatim',
                       $xt:nl,
                       '@end deftypefn',
                       $xt:nl)" />
@@ -198,6 +209,67 @@
 -->
 <template mode="xt:doc-gen" priority="1"
           match="*|@*|text()|comment()">
+</template>
+
+
+<!--
+  Serialization templates
+
+
+  This is very basic; it will be improved upon in the future.
+-->
+
+<function name="xt:serialize" as="xs:string">
+  <param name="context" />
+
+  <variable name="result">
+    <apply-templates mode="xt:serialize"
+                     select="$context" />
+  </variable>
+
+  <value-of select="$result" separator="" />
+</function>
+
+
+<template mode="xt:serialize"
+          match="element()">
+  <text>&lt;</text>
+  <value-of select="name()" />
+
+  <apply-templates mode="xt:serialize"
+                   select="@*" />
+
+  <choose>
+    <when test="node()">
+      <text>&gt;</text>
+      <apply-templates mode="xt:serialize" />
+      <sequence select="concat('&lt;/', name(), '&gt;' )" />
+    </when>
+
+    <otherwise>
+      <text> /&gt;</text>
+    </otherwise>
+  </choose>
+</template>
+
+
+<template match="@*" mode="xt:serialize">
+  <sequence select="concat(
+                    ' ',
+                    name(),
+                    '=&quot;',
+                    normalize-space( . ),
+                    '&quot;' )" />
+</template>
+
+
+<template match="text()" mode="xt:serialize">
+  <sequence select="." />
+</template>
+
+
+<template match="comment()" mode="xt:serialize">
+  <sequence select="concat( '&lt;!--', ., '--&gt;' )" />
 </template>
 
 </stylesheet>
