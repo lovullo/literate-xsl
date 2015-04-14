@@ -66,13 +66,38 @@
   <value-of select="concat(
                       $xt:nl,
                       '@deffn match {', @mode, '} ',
-                      ' on {', @match, '}',
+                      ' on {', xt:escape-match( @match ), '}',
                       $xt:nl,
                       $doc,
                       $xt:nl,
                       '@end deffn',
                       $xt:nl)" />
 </template>
+
+
+
+<!--
+  Escape `at' symbols in matches.
+
+  These are common in XPath queries (attribute selectors), but
+  conflict with the Texinfo command prefix.
+-->
+<function name="xt:escape-match" as="xs:string">
+  <param name="match" as="xs:string" />
+
+  <variable name="preat" as="xs:string"
+            select="substring-before( $match, '@' )" />
+  <variable name="postat" as="xs:string"
+            select="substring-after( $match, '@' )" />
+
+  <sequence select="if ( $preat ) then
+                      concat(
+                        $preat,
+                        '@@',
+                        xt:escape-match( $postat ) )
+                    else
+                      $match" />
+</function>
 
 
 <!--
