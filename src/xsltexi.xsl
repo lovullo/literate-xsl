@@ -58,7 +58,7 @@
 <template mode="xt:doc-gen" priority="7"
           match="xsl:template[ @match ]">
   <variable name="doc" as="comment()?"
-            select="preceding-sibling::comment()[1]" />
+            select="xt:get-docblock( . )" />
 
   <variable name="mode" as="xs:string"
             select="if ( @mode ) then @mode else '(default)'" />
@@ -115,7 +115,7 @@
 <template mode="xt:doc-gen" priority="5"
           match="xsl:template|xsl:function">
   <variable name="doc" as="comment()?"
-            select="preceding-sibling::comment()[1]" />
+            select="xt:get-docblock( . )" />
 
   <variable name="param-str" as="xs:string"
             select="string-join( xt:typed-param-str( xsl:param ),
@@ -144,17 +144,41 @@
 
 <!--
   Determine whether the given comment node is a docblock
+
+  We ignore anything that is not immediately adjacent to a template or
+  function, allowing simple newlines to be used to delimit body text
+  from docblocks.
+
+  The first text node following the comment is ignored if it is a
+  newline, since it is common practice to end the line after a comment
+  closing tag.
 -->
 <function name="xt:is-docblock" as="xs:boolean">
   <param name="node" as="comment()" />
 
   <variable name="next" as="node()?"
-            select="($node/following-sibling::*
-                    |$node/following-sibling::comment())[ 1 ]" />
+            select="$node/following-sibling::node()[
+                      not( . instance of text()
+                           and . = $xt:nl ) ]
+                        [1]" />
 
   <!-- FIXME: this will be a maintenance burden -->
   <sequence select="$next instance of element( xsl:template )
                     or $next instance of element( xsl:function )" />
+</function>
+
+
+<!--
+  Attempts to retrieve a docblock for the given node
+
+  Only the immediately preceding comment is considered according to
+  the @code{xt:is-docblock} predicate above.
+-->
+<function name="xt:get-docblock" as="comment()?">
+  <param name="context" as="node()" />
+
+  <sequence select="$context/preceding-sibling::comment()[1][
+                      xt:is-docblock( . ) ]" />
 </function>
 
 
