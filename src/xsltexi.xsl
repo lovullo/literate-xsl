@@ -111,6 +111,9 @@
   The return type, if not provided as @code{@as}, defaults to
   @code{xs:sequence()}.  Parameters are output in a style consistent
   with the XPath specification.
+
+  An anchor will also be generated using the namespace prefix and
+  local name, which allows for easy and intuitive referencing.
 -->
 <template mode="xt:doc-gen" priority="5"
           match="xsl:template|xsl:function">
@@ -125,6 +128,8 @@
             select="if ( @as ) then @as else 'xs:sequence*'" />
 
   <value-of select="concat(
+                      $xt:nl,
+                      '@anchor{', @name, '}',
                       $xt:nl,
                       '@deftypefn ', name(), ' {', $type, '} ',
                         @name, ' (', $param-str, ')',
