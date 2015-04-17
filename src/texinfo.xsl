@@ -34,14 +34,13 @@
 <!--
   Entry point
 
-  Comments that precede the stylesheet definition will also be
-  processed, since these are commonly used to describe the stylesheet
-  as a whole.
+  Any comments preceding the root node will not be output; it is
+  assumed that a license/copyright header will be placed here, or text
+  describing the stylesheet.
 -->
 <template match="xsl:stylesheet|xsl:transform">
   <apply-templates mode="xt:doc-gen"
-                   select="preceding-sibling::comment()
-                           |node()" />
+                   select="node()" />
 </template>
 
 
