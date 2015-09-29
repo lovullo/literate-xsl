@@ -2,7 +2,7 @@
 <!--@comment
   Texinfo documentation generator for XSL stylesheets
 
-  Copyright (C) 2014 LoVullo Associates, Inc.
+  Copyright (C) 2014, 2015 LoVullo Associates, Inc.
 
     This file is part of xslink.
 
