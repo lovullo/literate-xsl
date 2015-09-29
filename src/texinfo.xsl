@@ -2,7 +2,7 @@
 <!--@comment
   Texinfo documentation generator for XSL stylesheets
 
-  Copyright (C) 2014 LoVullo Associates, Inc.
+  Copyright (C) 2014, 2015 LoVullo Associates, Inc.
 
     This file is part of xslink.
 
@@ -111,8 +111,8 @@
   @code{xs:sequence()}.  Parameters are output in a style consistent
   with the XPath specification.
 
-  An anchor will also be generated using the namespace prefix and
-  local name, which allows for easy and intuitive referencing.
+  An anchor will also be generated using the name and (for functions) arity,
+  which allows for easy and intuitive referencing.
 -->
 <template mode="xt:doc-gen" priority="5"
           match="xsl:template|xsl:function">
@@ -126,14 +126,24 @@
   <variable name="type" as="xs:string"
             select="if ( @as ) then @as else 'xs:sequence*'" />
 
+  <variable name="anchor" as="xs:string"
+            select="if ( . instance of element( xsl:function ) ) then
+                      concat( @name, ':', count( xsl:param ) )
+                    else
+                      @name" />
+
   <value-of select="concat(
                       $xt:nl,
-                      '@anchor{', @name, '}',
-                      $xt:nl,
+                      ( if ( not( $anchor = '' ) ) then
+                          concat( '@anchor{', $anchor, '}', $xt:nl )
+                        else
+                          '' ),
                       '@deftypefn ', name(), ' {', $type, '} ',
                         @name, ' (', $param-str, ')',
                       $xt:nl,
                       $doc,
+                      $xt:nl,
+                      '@emph{Definition:}',
                       $xt:nl,
                       '@verbatim',
                       $xt:nl,
@@ -181,8 +191,10 @@
 <function name="xt:get-docblock" as="comment()?">
   <param name="context" as="node()" />
 
-  <sequence select="$context/preceding-sibling::comment()[1][
-                      xt:is-docblock( . ) ]" />
+  <sequence select="( ( $context/preceding-sibling::node()[
+                          not( . instance of text() ) ] )
+                        [ last() ] )
+                      [ . instance of comment() ]" />
 </function>
 
 
