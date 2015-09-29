@@ -189,8 +189,10 @@
 <function name="xt:get-docblock" as="comment()?">
   <param name="context" as="node()" />
 
-  <sequence select="$context/preceding-sibling::comment()[1][
-                      xt:is-docblock( . ) ]" />
+  <sequence select="( ( $context/preceding-sibling::node()[
+                          not( . instance of text() ) ] )
+                        [ last() ] )
+                      [ . instance of comment() ]" />
 </function>
 
 
