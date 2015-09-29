@@ -128,7 +128,7 @@
 
   <variable name="anchor" as="xs:string"
             select="if ( . instance of element( xsl:function ) ) then
-                      concat( @name, ':', count( xsl:param ) )
+                      concat( @name, '#', count( xsl:param ) )
                     else
                       @name" />
 
