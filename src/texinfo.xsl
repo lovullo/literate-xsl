@@ -111,8 +111,8 @@
   @code{xs:sequence()}.  Parameters are output in a style consistent
   with the XPath specification.
 
-  An anchor will also be generated using the namespace prefix and
-  local name, which allows for easy and intuitive referencing.
+  An anchor will also be generated using the name and (for functions) arity,
+  which allows for easy and intuitive referencing.
 -->
 <template mode="xt:doc-gen" priority="5"
           match="xsl:template|xsl:function">
@@ -126,10 +126,18 @@
   <variable name="type" as="xs:string"
             select="if ( @as ) then @as else 'xs:sequence*'" />
 
+  <variable name="anchor" as="xs:string"
+            select="if ( . instance of element( xsl:function ) ) then
+                      concat( @name, ':', count( xsl:param ) )
+                    else
+                      @name" />
+
   <value-of select="concat(
                       $xt:nl,
-                      '@anchor{', @name, '}',
-                      $xt:nl,
+                      ( if ( not( $anchor = '' ) ) then
+                          concat( '@anchor{', $anchor, '}', $xt:nl )
+                        else
+                          '' ),
                       '@deftypefn ', name(), ' {', $type, '} ',
                         @name, ' (', $param-str, ')',
                       $xt:nl,
