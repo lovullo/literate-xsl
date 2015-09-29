@@ -143,6 +143,8 @@
                       $xt:nl,
                       $doc,
                       $xt:nl,
+                      '@emph{Definition:}',
+                      $xt:nl,
                       '@verbatim',
                       $xt:nl,
                       xt:serialize( . ),
