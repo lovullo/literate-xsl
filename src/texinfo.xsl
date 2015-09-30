@@ -192,7 +192,8 @@
   <param name="context" as="node()" />
 
   <sequence select="( ( $context/preceding-sibling::node()[
-                          not( . instance of text() ) ] )
+                          not( . instance of text()
+                               and . = $xt:nl ) ] )
                         [ last() ] )
                       [ . instance of comment() ]" />
 </function>
