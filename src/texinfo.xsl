@@ -56,7 +56,7 @@
 -->
 <template mode="xt:doc-gen" priority="7"
           match="xsl:template[ @match ]">
-  <variable name="doc" as="comment()?"
+  <variable name="doc" as="xs:string?"
             select="xt:get-docblock( . )" />
 
   <variable name="mode" as="xs:string"
@@ -116,7 +116,7 @@
 -->
 <template mode="xt:doc-gen" priority="5"
           match="xsl:template|xsl:function">
-  <variable name="doc" as="comment()?"
+  <variable name="doc" as="xs:string?"
             select="xt:get-docblock( . )" />
 
   <variable name="param-str" as="xs:string"
@@ -188,14 +188,54 @@
   Only the immediately preceding comment is considered according to
   the @code{xt:is-docblock} predicate above.
 -->
-<function name="xt:get-docblock" as="comment()?">
+<function name="xt:get-docblock" as="xs:string?">
   <param name="context" as="node()" />
 
-  <sequence select="( ( $context/preceding-sibling::node()[
+  <variable name="docblock" as="comment()?"
+            select="( ( $context/preceding-sibling::node()[
                           not( . instance of text()
                                and . = $xt:nl ) ] )
                         [ last() ] )
                       [ . instance of comment() ]" />
+
+  <sequence select="if ( not( $docblock ) ) then
+                      ()
+                    else
+                      xt:format-block( $docblock )" />
+</function>
+
+
+<!--
+  Format docblock for Texinfo
+
+  Currently, this only handles de-indenting text: certain Texinfo commands
+  must begin in column 1, and certain environments (like @code{example} and
+  @code{verbatim}) incur extra indentation based on how the XML docblock is
+  formatted.
+
+  This considers the indentation of the first line of the docblock following
+  the opening delimiter to be the indentation throughout the entire
+  docblock, and strips those characters from the beginning of each
+  line.  Both tabs and spaces are recognized.
+-->
+<function name="xt:format-block" as="xs:string">
+  <param name="text" as="xs:string" />
+
+  <variable name="re" as="xs:string"
+            select="concat(
+                      '^',
+                      replace(
+                        substring-before(
+                          substring-after( $text, $xt:nl ),
+                          $xt:nl ),
+                        '(^[ 	]*).+$', '$1', 'm' ) )" />
+
+  <!-- regexes that match empty strings aren't permitted, so we must check
+       against it -->
+  <sequence select="if ( $re = '^' ) then
+                      $text
+                    else
+                      replace( $text, $re, '', 'm' )" />
 </function>
 
 
@@ -214,7 +254,7 @@
 -->
 <template mode="xt:doc-gen" priority="5"
           match="comment()[ not( starts-with( ., '@comment' ) ) ]">
-  <value-of select="concat( ., $xt:nl )" />
+  <value-of select="xt:format-block( concat( ., $xt:nl ) )" />
 </template>
 
 
