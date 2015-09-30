@@ -24,7 +24,7 @@
   xmlns="http://www.w3.org/1999/XSL/Transform"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:xt="http://www.lovullo.com/xsltexi">
+  xmlns:xt="http://www.lovullo.com/literate-xsl/texinfo">
 
 <output method="text" />
 
