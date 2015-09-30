@@ -119,6 +119,9 @@
   <variable name="doc" as="xs:string?"
             select="xt:get-docblock( . )" />
 
+  <variable name="xmlns" as="xs:string"
+            select="xt:get-xmlns-from-name( @name, . )" />
+
   <variable name="param-str" as="xs:string"
             select="string-join( xt:typed-param-str( xsl:param ),
                                  ', ' )" />
@@ -141,6 +144,8 @@
                       '@deftypefn ', name(), ' {', $type, '} ',
                         @name, ' (', $param-str, ')',
                       $xt:nl,
+                      concat( '@t{', $xmlns, '}' ),
+                      $xt:nl,
                       $doc,
                       $xt:nl,
                       '@emph{Definition:}',
@@ -154,6 +159,29 @@
                       '@end deftypefn',
                       $xt:nl)" />
 </template>
+
+
+<!--
+  Generate xmlns attribute for the namespace prefix of @var{name}
+-->
+<function name="xt:get-xmlns-from-name" as="xs:string">
+  <param name="name"    as="xs:string" />
+  <param name="context" as="element()" />
+
+  <variable name="prefix" as="xs:string"
+            select="substring-before( $name, ':' )" />
+
+  <sequence select="concat(
+                      'xmlns',
+                      ( if ( $prefix ) then
+                          concat( ':', $prefix )
+                        else
+                          '' ),
+                      '=&quot;',
+                      namespace-uri-for-prefix(
+                        $prefix, $context ),
+                      '&quot;' )" />
+</function>
 
 
 <!--
