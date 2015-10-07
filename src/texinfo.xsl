@@ -105,7 +105,7 @@
 
 
 <!--
-  Generate `template' and `function' definitions
+  Generate definitions
 
   The return type, if not provided as @code{@as}, defaults to
   @code{xs:sequence()}.  Parameters are output in a style consistent
@@ -115,7 +115,7 @@
   which allows for easy and intuitive referencing.
 -->
 <template mode="xt:doc-gen" priority="5"
-          match="xsl:template|xsl:function">
+          match="xsl:template|xsl:function|xsl:variable">
   <variable name="doc" as="xs:string?"
             select="xt:get-docblock( . )" />
 
@@ -206,7 +206,8 @@
 
   <!-- FIXME: this will be a maintenance burden -->
   <sequence select="$next instance of element( xsl:template )
-                    or $next instance of element( xsl:function )" />
+                    or $next instance of element( xsl:function )
+                    or $next instance of element( xsl:variable )" />
 </function>
 
 
