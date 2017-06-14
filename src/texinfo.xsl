@@ -119,6 +119,9 @@
   <variable name="doc" as="xs:string?"
             select="xt:get-docblock( . )" />
 
+  <variable name="name" as="xs:string"
+            select="@name" />
+
   <variable name="xmlns" as="xs:string"
             select="xt:get-xmlns-from-name( @name, . )" />
 
@@ -137,10 +140,8 @@
 
   <value-of select="concat(
                       $xt:nl,
-                      ( if ( not( $anchor = '' ) ) then
-                          concat( '@anchor{', $anchor, '}', $xt:nl )
-                        else
-                          '' ),
+                      '@anchor{', $anchor, '}',
+                      $xt:nl,
                       '@deftypefn ', name(), ' {', $type, '} ',
                         @name, ' (', $param-str, ')',
                       $xt:nl,
@@ -148,17 +149,70 @@
                       $xt:nl,
                       $doc,
                       $xt:nl,
-                      '@emph{Definition:}',
-                      $xt:nl,
-                      '@verbatim',
-                      $xt:nl,
-                      xt:serialize( . ),
-                      $xt:nl,
-                      '@end verbatim',
+                      xt:doc-gen-dfn( . ),
                       $xt:nl,
                       '@end deftypefn',
                       $xt:nl)" />
 </template>
+
+
+<!--
+  Generate definition for unnamed template.
+
+  The structure is similar to other definitions, but the declaration
+  is instead uses the mode as the name suffixed by the priority (if
+  set), and contains the XPath selector in square brackets.
+-->
+<template mode="xt:doc-gen" priority="7"
+          match="xsl:template[ not( @name ) and @mode ]">
+
+  <variable name="doc" as="xs:string?"
+            select="xt:get-docblock( . )" />
+
+  <variable name="priority" as="xs:integer?"
+            select="@priority" />
+
+  <variable name="select" as="xs:string"
+            select="replace( @select, '@', '@@' )" />
+
+  <variable name="xmlns" as="xs:string"
+            select="xt:get-xmlns-from-name( @mode, . )" />
+
+  <sequence select="concat(
+                      $xt:nl,
+                      '@deftypefn template {xs:sequence*}',
+                      @mode,
+                      ( if ( $priority ) then
+                            concat( '!', $priority )
+                          else ''),
+                      ' [', $select, ']',
+                      $xt:nl,
+                      concat( '@t{', $xmlns, '}' ),
+                      $xt:nl,
+                      $doc,
+                      $xt:nl,
+                      xt:doc-gen-dfn( . ),
+                      $xt:nl,
+                      '@end deftypefn',
+                      $xt:nl)" />
+</template>
+
+
+<!--
+  Serialize node.
+-->
+<function name="xt:doc-gen-dfn" as="xs:string">
+  <param name="node" as="node()" />
+
+  <sequence select="concat(
+                      '@emph{Definition:}',
+                      $xt:nl,
+                      '@verbatim',
+                      $xt:nl,
+                      xt:serialize( $node ),
+                      $xt:nl,
+                      '@end verbatim' )" />
+</function>
 
 
 <!--
